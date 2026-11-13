@@ -38,4 +38,9 @@ def barchart():
 def map():
     return render_template('map.html')
 
+@page_bp.route('/recognize')
+def recognize():
+    return render_template('recognize.html')
+
+
 

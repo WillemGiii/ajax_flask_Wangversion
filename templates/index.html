@@ -21,7 +21,7 @@
         <div class="container mt-5">
             <!-- <div class="row justify-content-center"> -->
             <button id="buttonStart" class="btn btn-primary">Ajax 開始</button>
-            <button id="buttonStart" class="btn btn-primary">Ajax 結束</button>
+            <button id="buttonEnd" class="btn btn-primary">Ajax 結束</button>
             <img id="img1" src="static/images/Loading.gif" style="display: none;" alt="載入中..." />
 
 
@@ -31,11 +31,117 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // 第一步 : 找到要操作的元素
         const divInfo = document.querySelector('#divInfo');
         const imgLoader = document.querySelector('#img1');
-        const btnStart = document.querySelector('#buttonStart');
 
-        //callback 回呼 => 非同步
+        const buttonStart = document.querySelector('#buttonStart')
+        const buttonEnd = document.querySelector('#buttonEnd')
+        
+        const apiUrl = '/api/hello'
+
+        // 建立 abortController 物件
+        // 放在宣告變數那邊
+        let abortController = null;
+
+        // 步驟二 甚麼時候做? 按下按鈕 => click
+        buttonStart.addEventListener('click', async () => {
+            // 步驟三 做甚麼?
+            try {
+
+                // 建立 abortController 物件
+                abortController = new AbortController();
+
+                // 從 AbortController 取得 signal 屬性
+                const signal = abortController.signal;
+
+
+                imgLoader.style.display = 'inline'; //顯示執行中的圖示
+                buttonStart.disabled = true; // 停用按鈕功能
+
+                // 可能發生例外的程式
+                const response = await fetch(apiUrl, {signal: signal}); //Response 物件 => header + body
+                
+                if (!response.ok){
+                    throw new Error(`API 呼叫失敗，狀態碼:${response.status}`);
+                }
+
+                const data = await response.json(); // 從 Response Body 取出 JSON 格式的資料
+                divInfo.innerHTML = `<h2>${data.message}</h2>`
+
+
+            } catch(error){
+                // 處理例外
+                let message = error.message;
+
+                if (error.name == 'AbortError' ){
+                    message = "您已取消此次請求!";
+                }
+
+                divInfo.textContent = message;
+
+            } finally {
+                // 最後的收尾工作
+                console.log("請求處理結束");
+                imgLoader.style.display = 'none'; // 隱藏執行中的圖示
+                buttonStart.disabled = false; // 啟用按鈕功能
+            }
+        });
+
+        // 結束請求：獨立註冊，不要放在開始按鈕的事件裡
+        buttonEnd.addEventListener('click', () => {
+            if(abortController){
+                abortController.abort();
+            }
+        });
+            // // 呼叫 API
+            // const response = await fetch(apiUrl); //Response 物件 => header + body
+            // console.log(response)
+            // // if 為 true
+            // if (response.ok){
+            //     const data = await response.json(); // 從 Response Body 取出 JSON格式的資料
+            //     console.log(data);
+            //     console.log(data.message);
+            //     //取得資料並更新畫面
+            //     // textContent => 將內容當成文字顯示
+            //     // divInfo.textContent = data.message;
+                
+            //     // innerHTML => 將內容當成 HTML解析並插入
+            //     // 反引號搭配 ${...} => 樣板字面值 裡面可以放變數或運算式
+            //     divInfo.innerHTML = `<h2>${data.message}</h2>`;
+            // } else if (response.status === 404){
+            //     alert('找不到指定的 API')
+            //     divInfo.textContent ='找不到指定的 API';
+            // } else {
+            //     alert(`請求失敗，狀態碼: ${response.status}`)
+            // }
+            
+
+
+            // 要做的事情 呼叫API
+            // fetch(apiUrl)
+            //     .then((response)=>{
+            //         console.log(response);
+            //         console.log(response.ok);
+            //         console.log(response.status);
+            //         console.log("內容類型：", response.headers.get("content-type"));
+
+            //         return response.json();
+            //     })
+            //     .then((data)=>{
+            //         console.log(data)
+            //         console.log(data.message)
+            //     });
+                // fetch(apiUrl)
+                //     .then((response)=> response.json())
+                //     .then((data)=>console.log(data.message));
+
+
+        // 將 API 資料顯示在網頁上
+        
+
+
+        // // callback 回呼 => 非同步
         // setTimeout(function () {
         //     //傳送訊息給A
         //     console.log('A');
@@ -54,12 +160,24 @@
 
         // }, 1000);
 
+        // const promise = new Promise((resolve, reject) => {
+
+        //     setTimeout(()=> {
+        //         resolve('2 秒到了');
+        //     }, 2000);
+
+        // });
+
+        // promise.then((result) => {
+        //     console.log(result);
+        // });
+
         // promise
         //     .then(() => {
         //         console.log('A')
         //     })
         //     .then(() => {
-        //         console.lo('B')
+        //         console.log('B')
         //     })
         //     .then(() => {
         //         console.log('C')

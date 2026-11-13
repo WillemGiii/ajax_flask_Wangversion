@@ -24,12 +24,17 @@
                 <div class="col-4">
                     <input type="number" name="age" id="userAge" class="form-control" placeholder="輸入年紀">
                 </div>
+                <div class="col-4">
+                    <input type="email" name="userEmail" id="userEmail" class="form-control" placeholder="輸入電子郵件">
+                </div>
             </div>
         </form>
         <button id="buttonQuery" class="btn btn-primary mb-3">透過 URL QueryString 傳遞資料</button>
         <button id="buttonPath" class="btn btn-primary mb-3">透過 URL Path 傳遞資料</button>
         <button id="buttonForm" class="btn btn-primary mb-3">資料包在 FormData 中傳遞</button>
         <button id="buttonJson" class="btn btn-primary mb-3">資料包在 JSON 中傳遞 </button>
+        <button id="buttonUpdate" class="btn btn-primary mb-3">修改(PUT)</button>
+        <button id="buttonDelete" class="btn btn-primary mb-3">刪除(DELETE)</button>
 
         <h2 class="display-6 fw-bold text-secondary my-4 pb-2 border-bottom">
             <i class="bi bi-image-fill me-2"></i>上傳圖片
@@ -37,7 +42,11 @@
         <div class="input-group my-3">
             <input type="file" id="fileInput" class="form-control" accept=".jpg, .jpeg, .png, .gif">
             <button id="buttonUpload" class="btn btn-primary" type="button">檔案上傳</button>
-        </div>
+        </div>\
+        <hr>
+        <select id="selectcity"></select>
+        <select id="selectdistrict"></select>
+
 
         <div class="mt-3">
             <img id="img1" class="img-fluid rounded border shadow-sm" style="width: 300px; height: auto;"
@@ -57,35 +66,195 @@
         const fileInput = document.querySelector('#fileInput');
         const inpName = document.querySelector('#userName');
         const inpAge = document.querySelector('#userAge');
+        const inpEmail = document.querySelector("#userEmail");
+
         const frmUser = document.querySelector('#userForm');
+
+        const btnUpdate = document.querySelector('#buttonUpdate');
+        const btnDelete = document.querySelector('#buttonDelete');
 
         const divInfo = document.querySelector('#divInfo');
         const theImg = document.querySelector('#img1');
 
+        const selCity = document.querySelector('#selectcity');
+        const selDistrict = document.querySelector('#selectdistrict');
+
+        // 修改 Demo
+        btnUpdate.addEventListener('click', async()=>{
+            const API_BASE_URL = "api/members";
+            const formData = new FormData();
+            formData.append('Name', 'Doggi');
+            formData.append('Email','Doggi@gmail.com');
+
+            const response = await fetch(`${API_BASE_URL}/1015`, {
+                method: 'PUT',
+                body: formData
+            });
+
+            const data = await response.json();
+            divInfo.textContent = JSON.stringify(data);
+        });
+
+        // 刪除 Demo
+        btnDelete.addEventListener('click', async()=>{
+            const API_BASE_URL = "api/members";
+
+            const response = await fetch(`${API_BASE_URL}/1014`, {
+                method: 'DELETE'
+            });
+
+            const data = await response.json();
+            divInfo.textContent = JSON.stringify(data);
+        });
+
+        // 立即執行函式 ; 把 城市JSON 檔 載入下拉式選單
+        (async() => {
+            try {
+                const respnse = await fetch("/api/cities");
+                if (!respnse.ok) throw Error("有問題")
+                const data = await respnse.json();
+
+                // 先測試一下
+                console.log(data);
+
+                // 讀取JSON 資料
+                const options= data.map((city)=>{
+                    return `<option value="${city}">${city}</option>`;
+                });
+                selCity.innerHTML = options.join("");
+
+            } catch(error) {
+                console.log(error.messsage)
+            }finally{
+
+            }
+        })();
+
+        // 下拉式選單選到甚麼，就顯示在 divInfo 內
+        selCity.addEventListener("change", ()=>{
+            divInfo.textContent = selCity.value;
+            loadDistricts();
+        });
+
+        /// 選到縣市後，第二個選單會出現對應的鄉鎮市區
+        // selCity.addEventListener("change",async ()=>{  
+        //     const response = await fetch(`http://127.0.0.1:5000/api/districts?city=${selCity.value}`);
+        //     const data = await response.json();
+            
+        //     // 先測試一下
+        //     console.log(data);
+
+        //     // 讀取JSON 資料
+        //     const options = data.map((district)=>{
+        //         return `<option value="${district}">${district}</option>`;
+        //     });
+
+        //     selDistrict.innerHTML = options.join("");
+        // });
+
+        // 孝宏的做法:
+
+        const loadDistricts = async() => { 
+            const response = await fetch(`http://127.0.0.1:5000/api/districts?city=${selCity.value}`);
+            const data= await response.json();
+            console.log(data);
+
+            const options= data.map((distrcit)=>{
+                return `<option value="${distrcit}"> ${distrcit} </option>`;
+            });
+            selDistrict.innerHTML = options.join("");
+            
+        } 
+
+        // QueryString
         btnQuery.addEventListener('click', async () => {
+            const response = await fetch(`http://127.0.0.1:5000/api/demo/query?name=${inpName.value}&age=${inpAge.value}&email=${inpEmail.value}`);
+            const data = await response.json();
+
+            console.log(data.name);
+            console.log(data.age);
+            console.log(data.email);
+
+            divInfo.textContent = JSON.stringify(data, null, 2);
 
         });
 
+        // 使用路由參數傳送資料
         btnPath.addEventListener('click', async () => {
+            const response = await fetch(`http://127.0.0.1:5000/api/demo/path/${inpName.value}/${inpAge.value}/${inpEmail.value}`);
+            const data = await response.json();
+            divInfo.textContent = JSON.stringify(data);
 
         });
 
+        // 透過 FormData 傳送資料
         btnForm.addEventListener('click', async () => {
+            const formData = new FormData(frmUser);
+
+            formData.append("name", "Jack");
+
+            // 讀取 FormData 中的資料
+            // for (const pair of formData.entries()){
+            //     console.log(pair[0], pair[1]);
+            // }
+            const apiUrl = '/api/demo/form'
+            const response = await fetch(apiUrl, {
+                method: "POST", // HTTP Method Ex: PUT, DELETE...
+                body : formData
+            });
+
+            const data = await response.json();
+            divInfo.textContent = JSON.stringify(data, null, 2);
+
+            
 
         });
 
+        // 透過 JSON 傳送資料
         btnJson.addEventListener('click', async () => {
             const payload = {
                 name: 'Steve',
                 age: 30
             };
+
+            const apiUrl = 'http://127.0.0.1:5000/api/demo/json';
+
+           const response = await fetch(apiUrl, {
+            method : "POST",
+            body : JSON.stringify(payload),
+            headers : {
+                'Content-Type' : "application/json"
+            }
+           });
+
+           const data = await response.json();
+           divInfo.textContent = JSON.stringify(data);
+
+
         });
 
 
-
+        
         //檔案上傳
         btnUpload.addEventListener('click', async () => {
+            const file= fileInput.files[0];
+            if (!file){
+                alert("請選擇檔案");
+                return;
+            }
+            const formData = new FormData();
+            formData.append("image", file)
 
+            const apiUrl = '/api/demo/image'
+
+            const response = await fetch(apiUrl, {
+                method : "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+
+            divInfo.textContent = JSON.stringify(data, null, 2);
         })
 
 

@@ -20,6 +20,39 @@
     <div class="container mt-3">
         <h3>JSON 練習</h3>
         <div id="userList">
+            <!-- 老師上課偷加 -->
+            <button id='button1' class='btn btn-primary'>Click</button>
+            <table class='table table-bordered table-dark table-hover'>
+                <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>UserName</th>
+                        <th>UserEmail</th>
+                        <th>age</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- <tr> -->
+                    <!-- <td>1</td>
+                        <td>Alice</td>
+                        <td>alice@company.com</td>
+                        <td>28</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Bob</td>
+                        <td>bob@company.com</td>
+                        <td>34</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Charlie</td>
+                        <td>charlie@company.com</td>
+                        <td>22</td>
+                    </tr> -->
+                </tbody>
+
+            </table>
 
         </div>
 
@@ -33,7 +66,79 @@
                 { "id": 2, "UserName": "Bob", "UserEmail": "bob@company.com", "age": 34 },
                 { "id": 3, "UserName": "Charlie", "UserEmail": "charlie@company.com", "age": 22 }]
 
+            // 找到要控制的對象 (標籤) button div
+            const btn = document.querySelector('#button1');
+            const myDIv = document.querySelector('#userList');
 
+            // 甚麼事情發生 : 按下按鈕 => 事件 => click
+            // function(){} => ()=>{} 箭頭函式
+            // 寫 JavaScipt 要記得開 Console 因為有錯誤的話會出現在 console 這邊
+            btn.addEventListener('click', () => {
+                //     // 做甚麼事 : 在div 中加入一段文字
+                //     myDIv.innerHTML = '<h2>Hello JavaScript!!</h2>';
+                //     // todo : 讀出 JSON 資料顯示在網頁上
+                //     myDIv.innerHTML = JSON.stringify(users);
+
+                // })
+
+                // console.log(emp.employees[0]);
+                // 陣列物件.forEach()
+                users.forEach((user, idx) => {
+                    console.log(`Index: ${idx}`);
+                    console.log(user.id);
+                    console.log(user.UserName);
+                    console.log(user.UserEmail);
+
+                })
+                // JSON 練習 2
+                const emp = {
+                    "employees": [
+                        { "name": "Tom", "workYears": 3, "salary": 35000 },
+                        { "name": "Jack", "workYears": 5, "salary": 40000 },
+                        { "name": "Mary", "workYears": 7, "salary": 45000 }
+                    ]
+                };
+
+                // let data = '';
+                // emp.employees.forEach((employee) => {
+                //     // data += employee.name + ' ' + employee.workYears + ' ' + employee.salary + '<br>';
+                //     console.log(employee.name);
+                //     console.log(employee.workYears);
+                // }
+                // );
+
+                // let datas = '';
+                // users.forEach((user, idx) => {
+                //     datas += `
+                //     <tr>
+                //         <td>${user.id}</td>
+                //         <td>${user.UserName}</td>
+                //         <td>${user.UserEmail}</td>
+                //         <td>${user.age}</td>
+                //     </tr>
+                //     `
+                // })
+
+                // const tb = document.querySelector('#userList>table>tbody');
+                // tb.innerHTML = datas;
+
+                //陣列.map()
+                const datas = users.map((user) => {
+                    return (
+                        `
+                <tr>
+                    <td>${user.id}</td>
+                    <td>${user.UserName}</td>
+                    <td>${user.UserEmail}</td>
+                    <td>${user.age}</td>
+                </tr>
+                `
+                    )
+                })
+                // console.log(datas.join(""));
+                const tb = document.querySelector('#userList>table>tbody');
+                tb.innerHTML = datas.join("");
+            })
 
         </script>
 </body>

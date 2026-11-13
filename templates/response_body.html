@@ -42,8 +42,10 @@
             </div>
             <div id="divInfo" class="alert alert-info my-4">
             </div>
-
-
+            <select id="select-task">
+                <option value="1"> Willem</option>
+                <option value="2"> 該減肥</option>
+            </select>
 
 
         </div>
@@ -56,21 +58,47 @@
         const btnJson = document.querySelector('#buttonJson');
         const divInfo = document.querySelector('#divInfo');
         const theImg = document.querySelector('#img1');
+        const selectTask = document.querySelector('#select-task');
 
 
         btnText.addEventListener('click', async () => {
+            const response = await fetch("api/text");
+            //使用 response.text() 取得字串
+            const data = await response.text();
+
+            divInfo.textContent = data;
 
         });
 
-
         btnLoad.addEventListener('click', async () => {
+            const response = await fetch("api/image");
+            // 如果 api 回傳的是圖片，那我們可以透過 blob() 從 Response Body 取出圖片
+            const datas = await response.blob(); 
+            // 使用 URL.createObjectURL() 建立物件網址
+            const imageUrl = URL.createObjectURL(datas);
+            theImg.src = imageUrl;
 
         })
 
 
         btnJson.addEventListener('click', async () => {
+            const response = await fetch("api/json");
+            // api 回傳的是 JSON，透過 json() 從 Response Body 取出JSON
+            const datas = await response.json();
+            divInfo.textContent = JSON.stringify(datas);
+            const tasks = datas.map((task)=>{
+                return `<option value="${task.id}">${task.task} </option>`;
+             });
+            selectTask.innerHTML = tasks.join("");
 
         });
+
+        //[{"id":1,"task":"學習 Flask-RESTful","completed":true},
+        // {"id":2,"task":"撰寫 AJAX fetch 練習","completed":false},
+        // {"id":3,"task":"實作圖片上傳功能","completed":false}]
+
+        //['<option value=1> 學習 Flask-RESTful </option>', '<option value=2> 撰寫 AJAX fetch 練習 </option>', ...
+        //
 
 
         theImg.onload = () => {

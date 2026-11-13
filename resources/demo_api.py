@@ -8,11 +8,12 @@ class QueryStringDemo(Resource):
         # 使用 request.args 取得資料
         name = request.args.get('name', '預設值')
         age = request.args.get('age')
-        return {"method": "QueryString", "name": name, "age": age}, 200
+        email = request.args.get('email')
+        return {"method": "QueryString", "name": name, "age": age, "email":email}, 200
 
 class PathDemo(Resource):
-    def get(self, name, age): # 變數會直接作為參數傳入
-        return {"method": "PathParameter", "name": name, "age": age}, 200
+    def get(self, name, age, email): # 變數會直接作為參數傳入
+        return {"method": "PathParameter", "name": name, "age": age, "email":email}, 200
     
 class FormDataDemo(Resource):
     def post(self):

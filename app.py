@@ -25,7 +25,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # 初始化
 db.init_app(app)
 
-#測試讀取.env 檔案
+# # 測試讀取.env 檔案
 # import os
 # from dotenv import load_dotenv
 # load_dotenv()  # 讀取 .env 檔案
